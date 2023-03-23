@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.renren.modules.demo.dao.ScoreDao">
+
+    <select id="queryChineseScoreList" resultType="io.renren.modules.demo.vo.ScoreVO" >
+
+	SELECT
+		tst.student_id,
+		tcs.class_name,
+		tcs.class_grade,
+		tcs.head_teacher,
+		tse.course_name,
+		min(tse.score) as min_score,
+		max(tse.score) as max_score,
+		ROUND(avg(score),2) as avg_score
+	FROM
+	    tb_class tcs
+		LEFT JOIN tb_student tst ON tst.class_id = tcs.class_id
+		LEFT JOIN tb_score tse ON tse.student_id= tst.student_id
+		GROUP BY tcs.class_name,tse.course_name
+		HAVING
+		${ew.sqlSegment}
+    </select>
+
+	<select id="querySumScoreList" resultType="io.renren.modules.demo.vo.SumScoreVo" >
+	SELECT
+		tcs.class_name,
+		tcs.class_grade,
+		tcs.head_teacher,
+		tst.student_id,
+		tst.student_name,
+		SUM(tse.score) as sum_score
+	FROM
+	  	tb_class tcs
+		LEFT JOIN tb_student tst ON tst.class_id = tcs.class_id
+		LEFT JOIN tb_score tse ON tse.student_id= tst.student_id
+		GROUP BY tcs.class_name,tcs.head_teacher,tst.student_id
+		HAVING ${ew.sqlSegment}
+    </select>
+
+	<select id="queryAllCourseList" resultType="io.renren.modules.demo.vo.AllCourseVO" >
+	SELECT
+		tst.student_id,
+		tst.student_name,
+		tst.student_gender,
+		tst.student_birth,
+		Max( CASE tse.course_name WHEN '语文' THEN score ELSE 0 END ) AS chinese_score,
+		Max( CASE tse.course_name WHEN '数学' THEN score ELSE 0 END ) AS maths_score,
+		Max( CASE tse.course_name WHEN '英语' THEN score ELSE 0 END ) AS english_score,
+		Max( CASE tse.course_name WHEN '物理' THEN score ELSE 0 END ) AS physics_score,
+		Max( CASE tse.course_name WHEN '化学' THEN score ELSE 0 END ) AS chemistry_score,
+		Max( CASE tse.course_name WHEN '生物' THEN score ELSE 0 END ) AS biology_score
+	FROM
+		tb_class tcs
+		LEFT JOIN tb_student tst ON tst.class_id = tcs.class_id
+		LEFT JOIN tb_score tse ON tse.student_id = tst.student_id
+	GROUP BY
+		tst.student_id
+    </select>
+
+</mapper>

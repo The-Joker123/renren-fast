@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.renren.modules.demo.dao.ClassDao">
+
+    <select id="listAllStudent" resultType="io.renren.modules.demo.vo.StudentAllListVO" >
+    SELECT
+		a.student_id,
+		a.class_name,
+		a.class_grade,
+		a.head_teacher,
+		a.student_name,
+		a.student_gender,
+		a.student_birth,
+		a.age
+	FROM
+		(
+		SELECT
+			tst.student_id,
+			tcs.class_name,
+			tcs.class_grade,
+			tcs.head_teacher,
+			tst.student_name,
+			tst.student_gender,
+			tst.student_birth,
+			TIMESTAMPDIFF(YEAR,tst.student_birth,CURDATE()) AS 'age'
+		FROM
+			tb_student tst
+		LEFT JOIN tb_class tcs ON tst.class_id = tcs.class_id
+	)as a
+	<if test='ew.sqlSegment!=null and ew.sqlSegment!=""' >
+		where ${ew.sqlSegment}
+	</if>
+
+    </select>
+
+</mapper>
